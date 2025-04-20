@@ -1,0 +1,110 @@
+/* Container styling */
+.employee-assessments {
+    padding: 2rem;
+  }
+  
+  /* Tab buttons */
+  .assessment-tabs {
+    margin-bottom: 1.5rem;
+  }
+  
+  .assessment-tabs button {
+    margin-right: 1rem;
+    padding: 0.6rem 1.2rem;
+    background-color: #e4e4e4;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .assessment-tabs button.active,
+  .assessment-tabs button:hover {
+    background-color: #ce4ddb;
+    color: white;
+  }
+  
+  /* Tab content */
+  .assessment-content {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+  .employee-assessments {
+    padding: 2rem;
+  }
+  
+  .assessment-tabs {
+    margin-bottom: 1.5rem;
+  }
+  
+  .assessment-tabs button {
+    margin-right: 1rem;
+    padding: 0.6rem 1.2rem;
+    background-color: #e4e4e4;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .assessment-tabs button.active,
+  .assessment-tabs button:hover {
+    background-color: #ce4ddb;
+    color: white;
+  }
+  
+  .assessment-content {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .take-assessment .question-block {
+    margin-bottom: 1.2rem;
+  }
+  
+  .option-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+  }
+  
+  .submit-btn {
+    margin-top: 1rem;
+    background-color: #ce4ddb;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .submit-btn:hover {
+    background-color: #b13cbf;
+  }
+  
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .results-table th,
+  .results-table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  
+  .results-table th {
+    background-color: #f2e1fd;
+    color: #2e2d2d;
+    font-weight: bold;
+  }
+    

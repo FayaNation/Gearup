@@ -1,5 +1,5 @@
-import { database } from "../config/firebase";
-import { ref, set, get } from "firebase/database";
+import { db } from "../config/firebase";
+import { collection, doc, setDoc, getDocs } from "firebase/firestore";
 
 // Sample data for initial database setup
 const sampleData = {
@@ -165,7 +165,16 @@ const sampleData = {
 export const initializeDatabase = async () => {
   try {
     // Set the sample data to the database
-    await set(ref(database), sampleData);
+    const collections = Object.keys(sampleData);
+
+    for (const collectionName of collections) {
+      const documents = sampleData[collectionName];
+
+      for (const docId of Object.keys(documents)) {
+        await setDoc(doc(db, collectionName, docId), documents[docId]);
+      }
+    }
+
     console.log("Database initialized with sample data");
     return true;
   } catch (error) {
@@ -177,15 +186,26 @@ export const initializeDatabase = async () => {
 // Function to check if the database is empty
 export const isDatabaseEmpty = async () => {
   try {
-    const snapshot = await get(ref(database));
-    return !snapshot.exists();
+    // Check if any collections have documents
+    const collections = Object.keys(sampleData);
+
+    for (const collectionName of collections) {
+      const collectionRef = collection(db, collectionName);
+      const snapshot = await getDocs(collectionRef);
+
+      if (!snapshot.empty) {
+        return false; // Found documents, database is not empty
+      }
+    }
+
+    return true; // No documents found in any collection
   } catch (error) {
     console.error("Error checking if database is empty:", error);
     return true; // Assume empty if there's an error
   }
 };
 
-// Initialize a database if it's empty
+// Initialize database if it's empty
 export const initializeDatabaseIfEmpty = async () => {
   const empty = await isDatabaseEmpty();
   if (empty) {

@@ -4,14 +4,14 @@ GearUp is a data-heavy web application for managing employee training, assessmen
 
 ## Firebase Setup
 
-This project uses Firebase Realtime Database for data storage. Follow these steps to set up Firebase:
+This project uses Firebase Firestore Database for data storage. Follow these steps to set up Firebase:
 
 1. **Create a Firebase Project**:
    - Go to the [Firebase Console](https://console.firebase.google.com/)
    - Click "Add project" and follow the setup steps
 
-2. **Set up Realtime Database**:
-   - In your Firebase project, go to "Realtime Database" in the left sidebar
+2. **Set up Firestore Database**:
+   - In your Firebase project, go to "Firestore Database" in the left sidebar
    - Click "Create Database"
    - Start in test mode (you can adjust security rules later)
 
@@ -65,6 +65,6 @@ yarn preview
 ## Technologies Used
 
 - React
-- Firebase (Authentication and Realtime Database)
+- Firebase (Authentication and Firestore Database)
 - React Router
 - Vite

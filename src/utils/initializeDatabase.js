@@ -94,7 +94,7 @@ const sampleData = {
   employees: {
     employee1: {
       firstName: "hope",
-      lastName: "kenosi",
+      lastName: "kenosiii",
       email: "kenosihope@gmail.com",
       department: "Operations",
       position: "Operator",

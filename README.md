@@ -1,12 +1,70 @@
-# React + Vite
+# GearUp - Training and Certification Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GearUp is a data-heavy web application for managing employee training, assessments, and certifications.
 
-Currently, two official plugins are available:
+## Firebase Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project uses Firebase Realtime Database for data storage. Follow these steps to set up Firebase:
 
-## Expanding the ESLint configuration
+1. **Create a Firebase Project**:
+   - Go to the [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add project" and follow the setup steps
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. **Set up Realtime Database**:
+   - In your Firebase project, go to "Realtime Database" in the left sidebar
+   - Click "Create Database"
+   - Start in test mode (you can adjust security rules later)
+
+3. **Get Firebase Configuration**:
+   - Go to Project Settings (gear icon)
+   - Scroll down to "Your apps" and select the web app (or create one)
+   - Copy the Firebase configuration object
+
+4. **Update Firebase Configuration**:
+   - Open `src/config/firebase.js`
+   - Replace the placeholder values in `firebaseConfig` with your actual Firebase configuration
+
+5. **Initialize the Database**:
+   - The application will automatically initialize the database with sample data on first run
+   - You can modify the sample data in `src/utils/initializeDatabase.js`
+
+## Database Structure
+
+The database is organized into the following collections:
+
+- **courses**: Training courses available to employees
+- **assessments**: Tests to evaluate employee knowledge
+- **employees**: Employee information and progress
+- **certifications**: Certifications earned by employees
+- **reports**: Generated reports on training progress
+
+## Development
+
+This project is built with React and Vite.
+
+### Getting Started
+
+```bash
+# Install dependencies
+yarn install
+
+# Start development server
+yarn dev
+```
+
+### Building for Production
+
+```bash
+# Build the project
+yarn build
+
+# Preview the build
+yarn preview
+```
+
+## Technologies Used
+
+- React
+- Firebase (Authentication and Realtime Database)
+- React Router
+- Vite

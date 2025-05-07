@@ -13,13 +13,14 @@ import EmployeeAssessments from './Components/EmployeeAssessments.jsx';
 import EmployeeCertifications from './Components/EmployeeCertifications.jsx';
 
 function App() {
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/employee-login" element={<EmployeeLogin />} />
       <Route path="/admin/courses" element={<AdminCourses />} />
-      <Route path="/admin/assessments" element={<AdminAssessments />} /> {/* ✅ add this */}
+      <Route path="/admin/assessments" element={<AdminAssessments />} />
       <Route path="/admin/employees" element={<AdminEmployees />} />
       <Route path="/admin/reports" element={<AdminReports />} />
       <Route path="/employee/courses" element={<EmployeeCourses />} />

@@ -2,6 +2,7 @@ import React from 'react';
 import './LandingPage.css';
 import { useNavigate } from 'react-router-dom';
 
+
 const LandingPage = () => {
   const navigate = useNavigate();
 
@@ -23,6 +24,8 @@ const LandingPage = () => {
           Dive into powerful learning, precise diagnostics, and expert-led certification—all in one place.<br />
           <strong>Let’s get your team geared up for success!</strong>
         </p>
+
+
       </main>
     </div>
   );

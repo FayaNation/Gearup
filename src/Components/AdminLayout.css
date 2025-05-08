@@ -1,0 +1,135 @@
+.admin-layout {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .admin-navbar {
+    background-color: #2E2D2D;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .admin-navbar .logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .admin-nav a {
+    color: #F2E1FD;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .admin-nav a:hover {
+    color: #CE4DDB;
+  }
+  
+  .admin-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .admin-sidebar {
+    width: 240px;
+    background-color: #f4f4f4;
+    padding: 1.5rem;
+    border-right: 1px solid #ddd;
+  }
+  
+  .admin-sidebar h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #2E2D2D;
+  }
+  
+  .admin-sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin-sidebar li {
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .admin-sidebar li:hover {
+    color: #CE4DDB;
+  }
+  
+  .admin-main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: #fff;
+  }
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    background-color: #CE4DDB;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    margin-left: 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #b33ec1;
+  }
+  .admin-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2E2D2D;
+    padding: 10px 20px;
+    color: white;
+  }
+  
+  .admin-navbar-left .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .admin-navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .admin-nav a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .logout-btn {
+    background-color: #CE4DDB;
+    color: white;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #b63ec2;
+  }
+  

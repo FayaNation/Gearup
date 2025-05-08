@@ -1,0 +1,143 @@
+.assessments-container {
+    padding: 20px;
+  }
+  
+  .assessments-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .assessments-tabs button {
+    padding: 8px 16px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .assessments-tabs .active {
+    background-color: #ce4ddb;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .assessments-panel {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .assessments-panel {
+    padding: 1.5rem;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+  }
+  
+  .create-assessment input,
+  .create-assessment select {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0.6rem;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .create-assessment button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #ce4ddb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .create-assessment button:hover {
+    background-color: #b13cbf;
+  }
+  
+  .preview {
+    margin-top: 2rem;
+  }
+  
+  .preview ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+  
+  .save-btn {
+    margin-top: 1.5rem;
+    background-color: #5cb85c;
+  }
+  .save-btn:hover {
+    background-color: #4cae4c;
+  }
+  .assign-panel {
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    max-width: 500px;
+  }
+  
+  .assign-panel h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .assign-panel select {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0.6rem;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .assign-panel button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #ce4ddb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .assign-panel button:hover {
+    background-color: #b13cbf;
+  }
+  .manage-panel {
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .assessment-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+  
+  .assessment-card h4 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .assessment-card button {
+    margin-right: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #ce4ddb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .assessment-card button:hover {
+    background-color: #b13cbf;
+  }
+    

@@ -1,0 +1,83 @@
+.add-employee,
+.manage-employees {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.add-employee input,
+.manage-employees input {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-employee button,
+.manage-employees button {
+  padding: 0.6rem 1.2rem;
+  background-color: #ce4ddb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.employee-list {
+  list-style: none;
+  padding: 0;
+}
+
+.employee-list li {
+  background: #fff;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.edit-employee {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 500px;
+}
+
+.edit-employee select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+}
+
+.edit-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.edit-form button {
+  padding: 0.6rem 1.2rem;
+  background-color: #ce4ddb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.edit-form button:hover {
+  background-color: #b13cbf;
+}
+

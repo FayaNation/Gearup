@@ -1,0 +1,55 @@
+.employee-certifications {
+    padding: 2rem;
+  }
+  
+  .employee-certifications h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .progress-bar {
+    background-color: #e0e0e0;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-fill {
+    background-color: #ce4ddb;
+    height: 100%;
+    transition: width 0.4s ease;
+  }
+  
+  .progress-text {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cert-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .cert-table th,
+  .cert-table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  
+  .cert-table th {
+    background-color: #f2e1fd;
+    color: #2e2d2d;
+  }
+  
+  .cert-table a {
+    color: #646cff;
+    text-decoration: underline;
+  }
+  
+  .cert-table a:hover {
+    color: #535bf2;
+  }
+  

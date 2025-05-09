@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EmployeeLayout from './EmployeeLayout';
 import './EmployeeAssessments.css';
-import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../config/firebase';
+
 
 const EmployeeAssessments = () => {
   const [activeTab, setActiveTab] = useState('take');

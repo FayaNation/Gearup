@@ -1,93 +1,287 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import './AdminCourses.css';
+import { app } from '../firebase';
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, getDocs, query, where } from 'firebase/firestore';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const AdminCourses = () => {
   const [selectedMenu, setSelectedMenu] = useState('add');
-
-  const [departments, setDepartments] = useState([
-    { name: 'Mechanical', courses: ['Engine Basics'] },
-    { name: 'Electrical', courses: ['Electrical Systems'] },
-  ]);
-
+  const [departments, setDepartments] = useState([]);
   const [newDept, setNewDept] = useState('');
   const [newCourse, setNewCourse] = useState('');
   const [editValue, setEditValue] = useState('');
-  const [editingCourse, setEditingCourse] = useState({ dept: '', index: null });
+  const [editingCourse, setEditingCourse] = useState({ dept: '', index: null, id: null });
 
   const [resources, setResources] = useState([]);
   const [videoTitle, setVideoTitle] = useState('');
   const [videoFile, setVideoFile] = useState(null);
   const [resourceTitle, setResourceTitle] = useState('');
   const [resourceFile, setResourceFile] = useState(null);
+  
+  // Upload progress tracking
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Success message
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleAddDepartmentCourse = () => {
+  // Initialize Firestore and Storage
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // Fetch departments and courses from Firestore on component mount
+  useEffect(() => {
+    fetchDepartmentsAndCourses();
+  }, []);
+
+  // Function to fetch departments and courses from Firestore
+  const fetchDepartmentsAndCourses = async () => {
+    try {
+      const departmentsSnapshot = await getDocs(collection(db, "departments"));
+      const deptData = [];
+
+      for (const deptDoc of departmentsSnapshot.docs) {
+        const deptInfo = deptDoc.data();
+        const coursesSnapshot = await getDocs(
+          query(collection(db, "courses"), where("departmentId", "==", deptDoc.id))
+        );
+        
+        const coursesList = coursesSnapshot.docs.map(courseDoc => ({
+          id: courseDoc.id,
+          name: courseDoc.data().name
+        }));
+
+        deptData.push({
+          id: deptDoc.id,
+          name: deptInfo.name,
+          courses: coursesList
+        });
+      }
+
+      setDepartments(deptData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      showMessageToUser("Error loading data", "error");
+    }
+  };
+
+  // Function to show messages to user
+  const showMessageToUser = (msg, type = "success") => {
+    setMessage(msg);
+    setShowMessage(true);
+    setTimeout(() => setShowMessage(false), 3000);
+  };
+
+  // Function to add department and course to Firestore
+  const handleAddDepartmentCourse = async () => {
     if (!newDept || !newCourse) return;
-    const deptIndex = departments.findIndex((d) => d.name === newDept);
-    const updated = [...departments];
-
-    if (deptIndex !== -1) {
-      updated[deptIndex].courses.push(newCourse);
-    } else {
-      updated.push({ name: newDept, courses: [newCourse] });
-    }
-
-    setDepartments(updated);
-    setNewDept('');
-    setNewCourse('');
-  };
-
-  const handleEditCourse = () => {
-    const updated = departments.map((d) => {
-      if (d.name === editingCourse.dept) {
-        const newCourses = [...d.courses];
-        newCourses[editingCourse.index] = editValue;
-        return { ...d, courses: newCourses };
+    
+    try {
+      // Check if department already exists
+      const deptIndex = departments.findIndex((d) => d.name === newDept);
+      
+      let departmentId;
+      
+      if (deptIndex === -1) {
+        // Add new department
+        const deptRef = await addDoc(collection(db, "departments"), {
+          name: newDept
+        });
+        departmentId = deptRef.id;
+      } else {
+        departmentId = departments[deptIndex].id;
       }
-      return d;
-    });
-
-    setDepartments(updated);
-    setEditingCourse({ dept: '', index: null });
-    setEditValue('');
-  };
-
-  const handleDeleteCourse = (dept, index) => {
-    const updated = departments.map((d) => {
-      if (d.name === dept) {
-        const newCourses = [...d.courses];
-        newCourses.splice(index, 1);
-        return { ...d, courses: newCourses };
-      }
-      return d;
-    });
-
-    setDepartments(updated);
-  };
-
-  const handleDeleteDepartment = (deptName) => {
-    setDepartments(departments.filter((d) => d.name !== deptName));
-  };
-
-  const handleUploadVideo = () => {
-    if (videoTitle && videoFile) {
-      alert(`🎥 Video "${videoTitle}" uploaded ✅`);
-      setVideoTitle('');
-      setVideoFile(null);
+      
+      // Add new course
+      await addDoc(collection(db, "courses"), {
+        name: newCourse,
+        departmentId: departmentId
+      });
+      
+      // Refresh the departments and courses
+      await fetchDepartmentsAndCourses();
+      
+      setNewDept('');
+      setNewCourse('');
+      showMessageToUser("Course added successfully!");
+    } catch (error) {
+      console.error("Error adding course:", error);
+      showMessageToUser("Error adding course", "error");
     }
   };
 
-  const handleUploadResource = () => {
-    if (resourceTitle && resourceFile) {
-      setResources([
-        ...resources,
-        {
-          name: resourceTitle,
-          file: resourceFile.name,
+  // Function to save edited course to Firestore
+  const handleEditCourse = async () => {
+    try {
+      if (editingCourse.id) {
+        await updateDoc(doc(db, "courses", editingCourse.id), {
+          name: editValue
+        });
+        
+        // Refresh departments and courses
+        await fetchDepartmentsAndCourses();
+        
+        setEditingCourse({ dept: '', index: null, id: null });
+        setEditValue('');
+        showMessageToUser("Course updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating course:", error);
+      showMessageToUser("Error updating course", "error");
+    }
+  };
+
+  // Function to delete course from Firestore
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await deleteDoc(doc(db, "courses", courseId));
+      
+      // Refresh departments and courses
+      await fetchDepartmentsAndCourses();
+      showMessageToUser("Course deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      showMessageToUser("Error deleting course", "error");
+    }
+  };
+
+  // Function to delete department from Firestore
+  const handleDeleteDepartment = async (deptId) => {
+    try {
+      // First, find all courses in this department
+      const coursesSnapshot = await getDocs(
+        query(collection(db, "courses"), where("departmentId", "==", deptId))
+      );
+      
+      // Delete all courses in this department
+      const courseDeletePromises = coursesSnapshot.docs.map(courseDoc => 
+        deleteDoc(doc(db, "courses", courseDoc.id))
+      );
+      
+      await Promise.all(courseDeletePromises);
+      
+      // Delete the department
+      await deleteDoc(doc(db, "departments", deptId));
+      
+      // Refresh departments and courses
+      await fetchDepartmentsAndCourses();
+      showMessageToUser("Department deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting department:", error);
+      showMessageToUser("Error deleting department", "error");
+    }
+  };
+
+  // Function to upload video to Firebase Storage
+  const handleUploadVideo = async () => {
+    if (!videoTitle || !videoFile) return;
+    
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      // Create a storage reference
+      const storageRef = ref(storage, `videos/${videoFile.name}`);
+      
+      // Upload file with progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, videoFile);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Track upload progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
         },
-      ]);
-      setResourceTitle('');
-      setResourceFile(null);
+        (error) => {
+          console.error("Error uploading video:", error);
+          setIsUploading(false);
+          showMessageToUser("Error uploading video", "error");
+        },
+        async () => {
+          // Upload completed successfully
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          
+          // Save video information to Firestore
+          await addDoc(collection(db, "videos"), {
+            title: videoTitle,
+            fileUrl: downloadURL,
+            fileName: videoFile.name,
+            uploadDate: new Date()
+          });
+          
+          setVideoTitle('');
+          setVideoFile(null);
+          setIsUploading(false);
+          showMessageToUser("Video uploaded successfully!");
+        }
+      );
+    } catch (error) {
+      console.error("Error in video upload process:", error);
+      setIsUploading(false);
+      showMessageToUser("Error uploading video", "error");
+    }
+  };
+
+  // Function to upload resource to Firebase Storage
+  const handleUploadResource = async () => {
+    if (!resourceTitle || !resourceFile) return;
+    
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      // Create a storage reference
+      const storageRef = ref(storage, `resources/${resourceFile.name}`);
+      
+      // Upload file with progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, resourceFile);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Track upload progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Error uploading resource:", error);
+          setIsUploading(false);
+          showMessageToUser("Error uploading resource", "error");
+        },
+        async () => {
+          // Upload completed successfully
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          
+          // Save resource information to Firestore
+          const docRef = await addDoc(collection(db, "resources"), {
+            title: resourceTitle,
+            fileUrl: downloadURL,
+            fileName: resourceFile.name,
+            uploadDate: new Date()
+          });
+          
+          // Update local state
+          setResources([
+            ...resources,
+            {
+              id: docRef.id,
+              name: resourceTitle,
+              file: resourceFile.name,
+              url: downloadURL
+            },
+          ]);
+          
+          setResourceTitle('');
+          setResourceFile(null);
+          setIsUploading(false);
+          showMessageToUser("Resource uploaded successfully!");
+        }
+      );
+    } catch (error) {
+      console.error("Error in resource upload process:", error);
+      setIsUploading(false);
+      showMessageToUser("Error uploading resource", "error");
     }
   };
 
@@ -114,16 +308,16 @@ const AdminCourses = () => {
             </div>
 
             <div className="department-list">
-              {departments.map((d, idx) => (
-                <div key={idx} className="dept-card">
+              {departments.map((d) => (
+                <div key={d.id} className="dept-card">
                   <div className="dept-header">
                     <h4>{d.name} ({d.courses.length})</h4>
-                    <button onClick={() => handleDeleteDepartment(d.name)}>🗑</button>
+                    <button onClick={() => handleDeleteDepartment(d.id)}>🗑</button>
                   </div>
                   <ul>
                     {d.courses.map((course, i) => (
-                      <li key={i}>
-                        {editingCourse.dept === d.name && editingCourse.index === i ? (
+                      <li key={course.id}>
+                        {editingCourse.dept === d.id && editingCourse.index === i ? (
                           <>
                             <input
                               type="text"
@@ -134,16 +328,16 @@ const AdminCourses = () => {
                           </>
                         ) : (
                           <>
-                            {course}
+                            {course.name}
                             <button
                               onClick={() => {
-                                setEditingCourse({ dept: d.name, index: i });
-                                setEditValue(course);
+                                setEditingCourse({ dept: d.id, index: i, id: course.id });
+                                setEditValue(course.name);
                               }}
                             >
                               ✏️
                             </button>
-                            <button onClick={() => handleDeleteCourse(d.name, i)}>🗑</button>
+                            <button onClick={() => handleDeleteCourse(course.id)}>🗑</button>
                           </>
                         )}
                       </li>
@@ -179,9 +373,19 @@ const AdminCourses = () => {
                 />
                 <input
                   type="file"
+                  accept="video/*"
                   onChange={(e) => setVideoFile(e.target.files[0])}
                 />
-                <button onClick={handleUploadVideo}>Upload Video</button>
+                <button onClick={handleUploadVideo} disabled={isUploading}>Upload Video</button>
+                {isUploading && (
+                  <div className="progress-bar">
+                    <div 
+                      className="progress" 
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                    <span>{Math.round(uploadProgress)}%</span>
+                  </div>
+                )}
               </div>
 
               <div className="upload-box">
@@ -196,7 +400,16 @@ const AdminCourses = () => {
                   type="file"
                   onChange={(e) => setResourceFile(e.target.files[0])}
                 />
-                <button onClick={handleUploadResource}>Upload Resource</button>
+                <button onClick={handleUploadResource} disabled={isUploading}>Upload Resource</button>
+                {isUploading && (
+                  <div className="progress-bar">
+                    <div 
+                      className="progress" 
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                    <span>{Math.round(uploadProgress)}%</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -204,8 +417,8 @@ const AdminCourses = () => {
               <div className="resource-preview">
                 <h4>Uploaded Resources</h4>
                 <ul>
-                  {resources.map((res, i) => (
-                    <li key={i}>
+                  {resources.map((res) => (
+                    <li key={res.id}>
                       📄 <strong>{res.name}</strong> — {res.file}
                     </li>
                   ))}
@@ -223,6 +436,11 @@ const AdminCourses = () => {
   return (
     <AdminLayout onMenuSelect={setSelectedMenu} activeMenu={selectedMenu}>
       {renderPanel()}
+      {showMessage && (
+        <div className={`message-popup ${message.includes("Error") ? "error" : "success"}`}>
+          {message}
+        </div>
+      )}
     </AdminLayout>
   );
 };

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import EmployeeLayout from './EmployeeLayout';
 import './EmployeeCertifications.css';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../config/firebase';
 
 const EmployeeCertifications = () => {
   const [certifications, setCertifications] = useState([]);

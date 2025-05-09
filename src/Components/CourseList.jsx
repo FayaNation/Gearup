@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useFirebase } from '../contexts/FirebaseContext';
-import { getCourses } from '../utils/databaseUtils';
-import { initializeDatabase } from '../utils/initializeDatabase';
+
 
 const CourseList = () => {
   const { isLoading: isFirebaseLoading, dbInitialized, db } = useFirebase();

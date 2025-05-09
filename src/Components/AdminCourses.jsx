@@ -79,19 +79,22 @@ const AdminCourses = () => {
     if (!newDept || !newCourse) return;
     
     try {
-      // Check if department already exists
-      const deptIndex = departments.findIndex((d) => d.name === newDept);
+      // Check if department already exists - case insensitive comparison
+      const existingDept = departments.find(
+        (d) => d.name.toLowerCase() === newDept.toLowerCase()
+      );
       
       let departmentId;
       
-      if (deptIndex === -1) {
+      if (!existingDept) {
         // Add new department
         const deptRef = await addDoc(collection(db, "departments"), {
           name: newDept
         });
         departmentId = deptRef.id;
       } else {
-        departmentId = departments[deptIndex].id;
+        // Use existing department
+        departmentId = existingDept.id;
       }
       
       // Add new course
@@ -346,15 +349,6 @@ const AdminCourses = () => {
                 </div>
               ))}
             </div>
-          </div>
-        );
-
-      case 'manage':
-        return (
-          <div className="courses-panel">
-            <h2>Manage Course Materials</h2>
-            <p>Edit uploaded videos and resources per course.</p>
-            {/* Placeholder for later expansion */}
           </div>
         );
 

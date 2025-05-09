@@ -10,7 +10,6 @@ const CoursesSidebar = ({ onMenuSelect }) => (
     <h3>Departments & Courses</h3>
     <ul>
       <li onClick={() => onMenuSelect('add')}>Add Department & Course</li>
-      <li onClick={() => onMenuSelect('manage')}>Manage Department & Course</li>
     </ul>
     <h3>Upload & Resources</h3>
     <ul>

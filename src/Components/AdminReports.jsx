@@ -131,8 +131,8 @@ const AdminReports = () => {
     }
   };
 
-  // Function to create certificate PDF for an employee
-  const createCertificatePDF = (employee) => {
+  // Function to generate and download a certificate for a specific employee
+  const downloadSingleCertificate = (employee) => {
     try {
       // Find employee's course 
       const employeeCourse = courses.find(c => c.id === employee.courseId)?.name || "Training Course";
@@ -144,7 +144,7 @@ const AdminReports = () => {
         format: 'a4'
       });
       
-      // Add fancy certificate background
+      // Add certificate background
       pdf.setFillColor(245, 245, 250);
       pdf.rect(0, 0, 297, 210, 'F');
       
@@ -194,35 +194,13 @@ const AdminReports = () => {
       pdf.setFontSize(12);
       pdf.text("Training Director", 148.5, 195, { align: "center" });
       
-      return pdf;
-    } catch (error) {
-      console.error("Error creating certificate PDF:", error);
-      throw error;
-    }
-  };
-
-  // Function to generate and download an individual certificate
-  const downloadCertificate = (employee) => {
-    try {
-      const pdf = createCertificatePDF(employee);
+      // Save the PDF
       pdf.save(`${employee.name.replace(/\s+/g, '_')}_certificate.pdf`);
-      showMessageToUser(`Certificate downloaded for ${employee.name}`);
+      
+      showMessageToUser(`Certificate for ${employee.name} downloaded successfully!`);
     } catch (error) {
       console.error("Error downloading certificate:", error);
       showMessageToUser("Error downloading certificate", "error");
-    }
-  };
-
-  // Function to generate certificate (preview)
-  const handleGenerate = (employee) => {
-    try {
-      const pdf = createCertificatePDF(employee);
-      // Open PDF in a new window
-      window.open(URL.createObjectURL(pdf.output('blob')));
-      showMessageToUser(`Certificate generated for ${employee.name}`);
-    } catch (error) {
-      console.error("Error generating certificate:", error);
-      showMessageToUser("Error generating certificate", "error");
     }
   };
   
@@ -489,7 +467,7 @@ const AdminReports = () => {
                       <div className="emp-info">
                         <div className="avatar initials">
                           {emp.name
-                            .split(" ")
+                            ?.split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </div>
@@ -513,25 +491,15 @@ const AdminReports = () => {
                       </span>
                     </td>
                     <td>
+                      {/* Show download button only for completed employees */}
                       {emp.status === "Completed" ? (
-                        <div className="action-buttons">
-                          <button
-                            className="cert-btn"
-                            onClick={() => handleGenerate(emp)}
-                            title="Generate Certificate"
-                          >
-                            <FaCertificate className="icon" />
-                            Generate
-                          </button>
-                          <button
-                            className="download-cert-btn"
-                            onClick={() => downloadCertificate(emp)}
-                            title="Download Certificate"
-                          >
-                            <FaDownload className="icon" />
-                            Download
-                          </button>
-                        </div>
+                        <button 
+                          className="cert-btn" 
+                          onClick={() => downloadSingleCertificate(emp)}
+                        >
+                          <FaDownload className="icon" />
+                          Download
+                        </button>
                       ) : (
                         "-"
                       )}
@@ -640,7 +608,7 @@ const AdminReports = () => {
         )}
       </div>
       
-      {/* Add this CSS to your AdminReports.css file or you can add inline styles */}
+      {/* Styles */}
       <style jsx>{`
         .reports-actions {
           display: flex;
@@ -696,38 +664,21 @@ const AdminReports = () => {
           margin-right: 8px;
         }
         
-        .action-buttons {
-          display: flex;
-          gap: 5px;
-        }
-        
-        .cert-btn, .download-cert-btn {
+        .cert-btn {
           display: flex;
           align-items: center;
+          background-color: #4a6ff3;
+          color: white;
           border: none;
           border-radius: 4px;
-          padding: 5px 10px;
+          padding: 6px 12px;
           cursor: pointer;
           font-size: 12px;
           transition: background-color 0.3s;
         }
         
-        .cert-btn {
-          background-color: #4a6ff3;
-          color: white;
-        }
-        
         .cert-btn:hover {
           background-color: #3a5fd3;
-        }
-        
-        .download-cert-btn {
-          background-color: #28a745;
-          color: white;
-        }
-        
-        .download-cert-btn:hover {
-          background-color: #218838;
         }
         
         .icon {

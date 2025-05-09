@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import './AdminEmployees.css';
@@ -167,6 +168,42 @@ const AdminEmployees = () => {
       console.error("Error saving changes:", error);
       showMessageToUser("Error saving changes", "error");
     }
+=======
+import React, { useState } from 'react'; 
+
+//git please
+
+import AdminLayout from './AdminLayout';
+import './AdminEmployees.css';
+
+const AdminEmployees = () => {
+  const [activeTab, setActiveTab] = useState('add');
+
+  const [employees, setEmployees] = useState([
+    { id: 1, name: 'Alex Morgan', email: 'alex@gearup.com', department: 'Mechanical' },
+    { id: 2, name: 'Jamie Lee', email: 'jamie@gearup.com', department: 'Electrical' },
+  ]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortAsc, setSortAsc] = useState(true);
+
+  const [newEmp, setNewEmp] = useState({ name: '', email: '', department: '' });
+  const [editId, setEditId] = useState('');
+  const [editInfo, setEditInfo] = useState({ name: '', email: '', department: '' });
+
+  const handleAddEmployee = () => {
+    if (newEmp.name && newEmp.email && newEmp.department) {
+      const id = Date.now();
+      setEmployees([...employees, { id, ...newEmp }]);
+      setNewEmp({ name: '', email: '', department: '' });
+    } else {
+      alert('Please fill in all fields.');
+    }
+  };
+
+  const handleDelete = (id) => {
+    setEmployees(employees.filter((emp) => emp.id !== id));
+>>>>>>> feature
   };
 
   const handleSort = () => {
@@ -183,11 +220,35 @@ const AdminEmployees = () => {
     const term = searchTerm.toLowerCase();
     return (
       emp.name.toLowerCase().includes(term) ||
+<<<<<<< HEAD
       emp.email.toLowerCase().includes(term) ||
       emp.department.toLowerCase().includes(term)
     );
   });
 
+=======
+      emp.email.toLowerCase().includes(term)
+    );
+  });
+
+  const handleEditSelection = (id) => {
+    const selected = employees.find((e) => e.id === parseInt(id));
+    setEditId(id);
+    setEditInfo({ name: selected.name, email: selected.email, department: selected.department });
+  };
+
+  const handleSaveEdit = () => {
+    setEmployees(
+      employees.map((emp) =>
+        emp.id === parseInt(editId) ? { ...emp, ...editInfo } : emp
+      )
+    );
+    alert('Employee info updated ✅');
+    setEditId('');
+    setEditInfo({ name: '', email: '', department: '' });
+  };
+
+>>>>>>> feature
   const renderTabContent = () => {
     if (activeTab === 'add') {
       return (
@@ -205,6 +266,7 @@ const AdminEmployees = () => {
             value={newEmp.email}
             onChange={(e) => setNewEmp({ ...newEmp, email: e.target.value })}
           />
+<<<<<<< HEAD
           <select
             value={newEmp.department}
             onChange={(e) => setNewEmp({ ...newEmp, department: e.target.value })}
@@ -221,6 +283,13 @@ const AdminEmployees = () => {
             placeholder="Password"
             value={newEmp.password}
             onChange={(e) => setNewEmp({ ...newEmp, password: e.target.value })}
+=======
+          <input
+            type="text"
+            placeholder="Department"
+            value={newEmp.department}
+            onChange={(e) => setNewEmp({ ...newEmp, department: e.target.value })}
+>>>>>>> feature
           />
           <button onClick={handleAddEmployee}>Add Employee</button>
         </div>
@@ -230,12 +299,20 @@ const AdminEmployees = () => {
     if (activeTab === 'manage') {
       return (
         <div className="manage-employees">
+<<<<<<< HEAD
           <h2>Manage & Edit Employees</h2>
+=======
+          <h2>Manage Employees</h2>
+>>>>>>> feature
 
           <div className="search-bar">
             <input
               type="text"
+<<<<<<< HEAD
               placeholder="Search by name, email or department..."
+=======
+              placeholder="Search by name or email..."
+>>>>>>> feature
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -250,13 +327,17 @@ const AdminEmployees = () => {
                 <th onClick={handleSort} className="sortable">
                   Department {sortAsc ? '↑' : '↓'}
                 </th>
+<<<<<<< HEAD
                 <th>Password</th>
+=======
+>>>>>>> feature
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
+<<<<<<< HEAD
                   <td>
                     {editMode[emp.id] ? (
                       <input
@@ -312,18 +393,68 @@ const AdminEmployees = () => {
                     ) : (
                       <button onClick={() => toggleEditMode(emp.id)}>Edit</button>
                     )}
+=======
+                  <td>{emp.name}</td>
+                  <td>{emp.email}</td>
+                  <td>{emp.department}</td>
+                  <td>
+>>>>>>> feature
                     <button onClick={() => handleDelete(emp.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+<<<<<<< HEAD
 
           <div style={{ marginTop: '1.5rem' }}>
             <button className="save-btn" onClick={handleSaveAllChanges}>
               Save All Changes
             </button>
           </div>
+=======
+        </div>
+      );
+    }
+
+    if (activeTab === 'edit') {
+      return (
+        <div className="edit-employee">
+          <h2>Edit Employee Info</h2>
+
+          <select value={editId} onChange={(e) => handleEditSelection(e.target.value)}>
+            <option value="">Select an employee</option>
+            {employees.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.name} ({emp.department})
+              </option>
+            ))}
+          </select>
+
+          {editId && (
+            <div className="edit-form">
+              <input
+                type="text"
+                value={editInfo.name}
+                onChange={(e) => setEditInfo({ ...editInfo, name: e.target.value })}
+                placeholder="Name"
+              />
+              <input
+                type="email"
+                value={editInfo.email}
+                onChange={(e) => setEditInfo({ ...editInfo, email: e.target.value })}
+                placeholder="Email"
+              />
+              <input
+                type="text"
+                value={editInfo.department}
+                onChange={(e) => setEditInfo({ ...editInfo, department: e.target.value })}
+                placeholder="Department"
+              />
+              <button onClick={handleSaveEdit}>Save Changes</button>
+            </div>
+          )}
+>>>>>>> feature
         </div>
       );
     }
@@ -333,6 +464,7 @@ const AdminEmployees = () => {
 
   return (
     <AdminLayout onMenuSelect={setActiveTab} activeMenu={activeTab}>
+<<<<<<< HEAD
       <div className="employees-panel">
         {renderTabContent()}
         {showMessage && (
@@ -341,8 +473,15 @@ const AdminEmployees = () => {
           </div>
         )}
       </div>
+=======
+      <div className="employees-panel">{renderTabContent()}</div>
+>>>>>>> feature
     </AdminLayout>
   );
 };
 
+<<<<<<< HEAD
 export default AdminEmployees;
+=======
+export default AdminEmployees;
+>>>>>>> feature

@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
-<<<<<<< HEAD
-
-=======
 import { useFirebase } from '../contexts/FirebaseContext';
 import { getCourses } from '../utils/databaseUtils';
 import { initializeDatabase } from '../utils/initializeDatabase';
->>>>>>> feature
 
 const CourseList = () => {
   const { isLoading: isFirebaseLoading, dbInitialized, db } = useFirebase();

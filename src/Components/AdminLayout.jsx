@@ -4,18 +4,6 @@ import './AdminLayout.css';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
 
-<<<<<<< HEAD
-// Sidebar: Courses (FINAL CLEANED VERSION)
-const CoursesSidebar = ({ onMenuSelect }) => (
-  <>
-    <h3>Departments & Courses</h3>
-    <ul>
-      <li onClick={() => onMenuSelect('add')}>Add Department & Course</li>
-    </ul>
-    <h3>Upload & Resources</h3>
-    <ul>
-      <li onClick={() => onMenuSelect('upload')}>Upload Training Content</li>
-=======
 const CoursesSidebar = ({ onMenuSelect }) => (
   <>
     <h3>Training Content</h3>
@@ -32,46 +20,28 @@ const CoursesSidebar = ({ onMenuSelect }) => (
     <ul>
       <li onClick={() => onMenuSelect('settings')}>Course Title & Info</li>
       <li onClick={() => onMenuSelect('completion')}>Completion Rules</li>
->>>>>>> feature
     </ul>
   </>
 );
 
-<<<<<<< HEAD
-
-// Sidebar: Assessments
-=======
->>>>>>> feature
 const AssessmentsSidebar = ({ onMenuSelect }) => (
   <>
     <h3>Assessments</h3>
     <ul>
       <li onClick={() => onMenuSelect('create')}>Create Assessment</li>
-<<<<<<< HEAD
-      <li onClick={() => onMenuSelect('manage')}>Manage Assessments</li>
-=======
       <li onClick={() => onMenuSelect('assign')}>Assign to Course</li>
       <li onClick={() => onMenuSelect('manage')}>Manage Questions</li>
->>>>>>> feature
     </ul>
   </>
 );
 
-<<<<<<< HEAD
-// Sidebar: Employees (merged Manage/Edit)
-=======
->>>>>>> feature
 const EmployeesSidebar = ({ onMenuSelect }) => (
   <>
     <h3>Employees</h3>
     <ul>
       <li onClick={() => onMenuSelect('add')}>Add Employee</li>
-<<<<<<< HEAD
-      <li onClick={() => onMenuSelect('manage')}>Manage & Edit Employees</li>
-=======
       <li onClick={() => onMenuSelect('manage')}>Manage Employees</li>
       <li onClick={() => onMenuSelect('edit')}>Edit Info</li>
->>>>>>> feature
     </ul>
   </>
 );
@@ -81,17 +51,10 @@ const AdminLayout = ({ children, onMenuSelect }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-<<<<<<< HEAD
-    navigate('/');
-  };
-
-  // Sidebar logic by current route
-=======
     // Optionally clear session/auth logic here
     navigate('/');
   };
 
->>>>>>> feature
   let sidebar = null;
   if (location.pathname.startsWith('/admin/courses')) {
     sidebar = <CoursesSidebar onMenuSelect={onMenuSelect} />;
@@ -107,10 +70,6 @@ const AdminLayout = ({ children, onMenuSelect }) => {
         <div className="admin-navbar-left">
           <div className="logo">GearUp Admin</div>
         </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> feature
         <div className="admin-navbar-right">
           <nav className="admin-nav">
             <Link to="/admin/courses">Courses</Link>

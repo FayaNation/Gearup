@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "./AdminLayout";
-import { FaCertificate } from "react-icons/fa";
+import { FaCertificate, FaSearch, FaDownload, FaFileDownload } from "react-icons/fa";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import "./AdminReports.css";
 import { app } from '../firebase';
 import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const COLORS = ["#00C49F", "#FFBB28", "#FF8042", "#0088FE"];
 
 const AdminReports = () => {
   const [employees, setEmployees] = useState([]);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [courses, setCourses] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,7 @@ const AdminReports = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [message, setMessage] = useState("");
   const [showMessage, setShowMessage] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Initialize Firestore
   const db = getFirestore(app);
@@ -40,6 +43,22 @@ const AdminReports = () => {
 
     fetchData();
   }, []);
+
+  // Update filtered employees whenever employees or search term changes
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredEmployees(employees);
+    } else {
+      const term = searchTerm.toLowerCase();
+      const filtered = employees.filter(
+        emp => 
+          emp.name.toLowerCase().includes(term) || 
+          emp.department?.toLowerCase().includes(term) ||
+          (courses.find(c => c.id === emp.courseId)?.name || "").toLowerCase().includes(term)
+      );
+      setFilteredEmployees(filtered);
+    }
+  }, [employees, searchTerm, courses]);
 
   // Function to fetch employees from Firestore
   const fetchEmployees = async () => {
@@ -112,50 +131,184 @@ const AdminReports = () => {
     }
   };
 
-  // Function to generate certificate PDF
-  const handleGenerate = async (employee) => {
+  // Function to create certificate PDF for an employee
+  const createCertificatePDF = (employee) => {
     try {
       // Find employee's course 
       const employeeCourse = courses.find(c => c.id === employee.courseId)?.name || "Training Course";
       
-      // Create new PDF document
-      const pdf = new jsPDF();
+      // Create new PDF document in landscape mode
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Add fancy certificate background
+      pdf.setFillColor(245, 245, 250);
+      pdf.rect(0, 0, 297, 210, 'F');
       
       // Add certificate content
-      pdf.setFontSize(30);
+      pdf.setFontSize(32);
       pdf.setTextColor(0, 0, 128);
-      pdf.text("Certificate of Completion", 105, 30, { align: "center" });
+      pdf.text("Certificate of Completion", 148.5, 40, { align: "center" });
+      
+      // Add border
+      pdf.setDrawColor(0, 0, 128);
+      pdf.setLineWidth(1.5);
+      pdf.rect(10, 10, 277, 190);
+      
+      // Add inner decorative border
+      pdf.setDrawColor(0, 0, 128);
+      pdf.setLineWidth(0.7);
+      pdf.rect(15, 15, 267, 180);
       
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("This certifies that", 105, 60, { align: "center" });
+      pdf.text("This certifies that", 148.5, 70, { align: "center" });
       
-      pdf.setFontSize(24);
+      pdf.setFontSize(26);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(employee.name, 105, 80, { align: "center" });
+      pdf.text(employee.name, 148.5, 90, { align: "center" });
       
       pdf.setFontSize(16);
-      pdf.text("has successfully completed the course", 105, 100, { align: "center" });
+      pdf.text("has successfully completed the course", 148.5, 110, { align: "center" });
       
-      pdf.setFontSize(20);
+      pdf.setFontSize(22);
       pdf.setTextColor(0, 0, 128);
-      pdf.text(employeeCourse, 105, 120, { align: "center" });
+      pdf.text(employeeCourse, 148.5, 130, { align: "center" });
       
-      pdf.setFontSize(14);
+      pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
       const today = new Date();
-      pdf.text(`Date: ${today.toLocaleDateString()}`, 105, 150, { align: "center" });
+      pdf.text(`Date: ${today.toLocaleDateString()}`, 148.5, 160, { align: "center" });
+      
+      pdf.setFontSize(14);
+      pdf.text("GearUp Training Program", 148.5, 175, { align: "center" });
+      
+      // Add a signature line
+      pdf.setDrawColor(0, 0, 0);
+      pdf.setLineWidth(0.5);
+      pdf.line(90, 185, 207, 185);
       
       pdf.setFontSize(12);
-      pdf.text("GearUp Training Program", 105, 170, { align: "center" });
+      pdf.text("Training Director", 148.5, 195, { align: "center" });
       
-      // Save the PDF
+      return pdf;
+    } catch (error) {
+      console.error("Error creating certificate PDF:", error);
+      throw error;
+    }
+  };
+
+  // Function to generate and download an individual certificate
+  const downloadCertificate = (employee) => {
+    try {
+      const pdf = createCertificatePDF(employee);
       pdf.save(`${employee.name.replace(/\s+/g, '_')}_certificate.pdf`);
-      
+      showMessageToUser(`Certificate downloaded for ${employee.name}`);
+    } catch (error) {
+      console.error("Error downloading certificate:", error);
+      showMessageToUser("Error downloading certificate", "error");
+    }
+  };
+
+  // Function to generate certificate (preview)
+  const handleGenerate = (employee) => {
+    try {
+      const pdf = createCertificatePDF(employee);
+      // Open PDF in a new window
+      window.open(URL.createObjectURL(pdf.output('blob')));
       showMessageToUser(`Certificate generated for ${employee.name}`);
     } catch (error) {
       console.error("Error generating certificate:", error);
       showMessageToUser("Error generating certificate", "error");
+    }
+  };
+  
+  // Function to generate and download all eligible certificates
+  const handleGenerateAllCertificates = () => {
+    try {
+      const completedEmployees = employees.filter(emp => emp.status === "Completed");
+      
+      if (completedEmployees.length === 0) {
+        showMessageToUser("No completed courses found to generate certificates", "error");
+        return;
+      }
+      
+      // Create a single PDF with all certificates
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      completedEmployees.forEach((employee, index) => {
+        // Add a new page for each certificate except the first one
+        if (index > 0) {
+          pdf.addPage();
+        }
+        
+        const employeeCourse = courses.find(c => c.id === employee.courseId)?.name || "Training Course";
+        
+        // Add fancy certificate background
+        pdf.setFillColor(245, 245, 250);
+        pdf.rect(0, 0, 297, 210, 'F');
+        
+        // Add certificate content
+        pdf.setFontSize(32);
+        pdf.setTextColor(0, 0, 128);
+        pdf.text("Certificate of Completion", 148.5, 40, { align: "center" });
+        
+        // Add border
+        pdf.setDrawColor(0, 0, 128);
+        pdf.setLineWidth(1.5);
+        pdf.rect(10, 10, 277, 190);
+        
+        // Add inner decorative border
+        pdf.setDrawColor(0, 0, 128);
+        pdf.setLineWidth(0.7);
+        pdf.rect(15, 15, 267, 180);
+        
+        pdf.setFontSize(16);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text("This certifies that", 148.5, 70, { align: "center" });
+        
+        pdf.setFontSize(26);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(employee.name, 148.5, 90, { align: "center" });
+        
+        pdf.setFontSize(16);
+        pdf.text("has successfully completed the course", 148.5, 110, { align: "center" });
+        
+        pdf.setFontSize(22);
+        pdf.setTextColor(0, 0, 128);
+        pdf.text(employeeCourse, 148.5, 130, { align: "center" });
+        
+        pdf.setFontSize(16);
+        pdf.setTextColor(0, 0, 0);
+        const today = new Date();
+        pdf.text(`Date: ${today.toLocaleDateString()}`, 148.5, 160, { align: "center" });
+        
+        pdf.setFontSize(14);
+        pdf.text("GearUp Training Program", 148.5, 175, { align: "center" });
+        
+        // Add a signature line
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.5);
+        pdf.line(90, 185, 207, 185);
+        
+        pdf.setFontSize(12);
+        pdf.text("Training Director", 148.5, 195, { align: "center" });
+      });
+      
+      // Save the PDF with all certificates
+      pdf.save("all_certificates.pdf");
+      
+      showMessageToUser(`Generated ${completedEmployees.length} certificates successfully!`);
+    } catch (error) {
+      console.error("Error generating all certificates:", error);
+      showMessageToUser("Error generating certificates", "error");
     }
   };
 
@@ -197,6 +350,97 @@ const AdminReports = () => {
       value: deptCounts[dept]
     }));
   };
+  
+  // Function to handle search
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  
+  // Function to download comprehensive report as PDF
+  const handleDownloadReport = () => {
+    try {
+      // Create PDF with landscape orientation for better tables
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Title
+      pdf.setFontSize(20);
+      pdf.setTextColor(0, 0, 128);
+      pdf.text("GearUp Training Program - Comprehensive Report", 148.5, 15, { align: "center" });
+      
+      // Date
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 148.5, 25, { align: "center" });
+      
+      // Summary Statistics
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Summary Statistics", 14, 40);
+      
+      pdf.setFontSize(12);
+      pdf.text(`Total Employees: ${employees.length}`, 14, 50);
+      pdf.text(`Total Departments: ${departments.length}`, 14, 57);
+      pdf.text(`Total Courses: ${courses.length}`, 14, 64);
+      pdf.text(`Completed Courses: ${employees.filter(e => e.status === "Completed").length}`, 14, 71);
+      pdf.text(`In Progress Courses: ${employees.filter(e => e.status === "In Progress").length}`, 14, 78);
+      pdf.text(`Not Started Courses: ${employees.filter(e => e.status === "Not Started").length}`, 14, 85);
+      
+      // Department Statistics
+      pdf.setFontSize(16);
+      pdf.text("Department Statistics", 14, 100);
+      
+      // Department table
+      const deptData = getDepartmentChartData();
+      const deptTableData = deptData.map(d => [d.name, d.value.toString()]);
+      
+      pdf.autoTable({
+        startY: 105,
+        head: [['Department', 'Number of Employees']],
+        body: deptTableData,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 0, 128] }
+      });
+      
+      // Employee Status Table
+      pdf.addPage();
+      pdf.setFontSize(16);
+      pdf.text("Employee Status Details", 14, 20);
+      
+      const employeeTableData = employees.map(emp => [
+        emp.name,
+        emp.department,
+        courses.find(c => c.id === emp.courseId)?.name || "Not Assigned",
+        emp.status
+      ]);
+      
+      pdf.autoTable({
+        startY: 25,
+        head: [['Employee Name', 'Department', 'Course', 'Status']],
+        body: employeeTableData,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 0, 128] },
+        styles: { overflow: 'linebreak' },
+        columnStyles: {
+          0: { cellWidth: 50 },
+          1: { cellWidth: 50 },
+          2: { cellWidth: 80 },
+          3: { cellWidth: 30 }
+        }
+      });
+      
+      // Save the PDF
+      pdf.save("training_program_report.pdf");
+      
+      showMessageToUser("Report downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating report:", error);
+      showMessageToUser("Error generating report", "error");
+    }
+  };
 
   return (
     <AdminLayout>
@@ -206,6 +450,28 @@ const AdminReports = () => {
           <div className="loading">Loading...</div>
         ) : (
           <>
+            <div className="reports-actions">
+              <div className="search-container">
+                <input 
+                  type="text" 
+                  placeholder="Search employees, departments, or courses..." 
+                  value={searchTerm} 
+                  onChange={handleSearch}
+                />
+                <FaSearch className="search-icon" />
+              </div>
+              <div className="download-buttons">
+                <button className="download-btn" onClick={handleGenerateAllCertificates}>
+                  <FaCertificate className="btn-icon" />
+                  Download All Certificates
+                </button>
+                <button className="download-btn" onClick={handleDownloadReport}>
+                  <FaFileDownload className="btn-icon" />
+                  Download Full Report
+                </button>
+              </div>
+            </div>
+
             <table className="report-table">
               <thead>
                 <tr>
@@ -217,7 +483,7 @@ const AdminReports = () => {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((emp) => (
+                {filteredEmployees.map((emp) => (
                   <tr key={emp.id}>
                     <td>
                       <div className="emp-info">
@@ -248,14 +514,24 @@ const AdminReports = () => {
                     </td>
                     <td>
                       {emp.status === "Completed" ? (
-                        <button
-                          className="cert-btn"
-                          onClick={() => handleGenerate(emp)}
-                          title="Generate Certificate"
-                        >
-                          <FaCertificate className="icon" />
-                          Generate
-                        </button>
+                        <div className="action-buttons">
+                          <button
+                            className="cert-btn"
+                            onClick={() => handleGenerate(emp)}
+                            title="Generate Certificate"
+                          >
+                            <FaCertificate className="icon" />
+                            Generate
+                          </button>
+                          <button
+                            className="download-cert-btn"
+                            onClick={() => downloadCertificate(emp)}
+                            title="Download Certificate"
+                          >
+                            <FaDownload className="icon" />
+                            Download
+                          </button>
+                        </div>
                       ) : (
                         "-"
                       )}
@@ -363,6 +639,101 @@ const AdminReports = () => {
           </div>
         )}
       </div>
+      
+      {/* Add this CSS to your AdminReports.css file or you can add inline styles */}
+      <style jsx>{`
+        .reports-actions {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          align-items: center;
+        }
+        
+        .search-container {
+          position: relative;
+          width: 40%;
+        }
+        
+        .search-container input {
+          width: 100%;
+          padding: 10px 15px 10px 40px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+        
+        .search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #666;
+        }
+        
+        .download-buttons {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .download-btn {
+          display: flex;
+          align-items: center;
+          background-color: #4a6ff3;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          padding: 8px 16px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover {
+          background-color: #3a5fd3;
+        }
+        
+        .btn-icon {
+          margin-right: 8px;
+        }
+        
+        .action-buttons {
+          display: flex;
+          gap: 5px;
+        }
+        
+        .cert-btn, .download-cert-btn {
+          display: flex;
+          align-items: center;
+          border: none;
+          border-radius: 4px;
+          padding: 5px 10px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: background-color 0.3s;
+        }
+        
+        .cert-btn {
+          background-color: #4a6ff3;
+          color: white;
+        }
+        
+        .cert-btn:hover {
+          background-color: #3a5fd3;
+        }
+        
+        .download-cert-btn {
+          background-color: #28a745;
+          color: white;
+        }
+        
+        .download-cert-btn:hover {
+          background-color: #218838;
+        }
+        
+        .icon {
+          margin-right: 4px;
+        }
+      `}</style>
     </AdminLayout>
   );
 };

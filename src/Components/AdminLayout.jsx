@@ -4,44 +4,40 @@ import './AdminLayout.css';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
 
+// Sidebar: Courses (FINAL CLEANED VERSION)
 const CoursesSidebar = ({ onMenuSelect }) => (
   <>
-    <h3>Training Content</h3>
+    <h3>Departments & Courses</h3>
     <ul>
-      <li onClick={() => onMenuSelect('upload')}>Upload Video</li>
-      <li onClick={() => onMenuSelect('assign')}>Assign Department</li>
+      <li onClick={() => onMenuSelect('add')}>Add Department & Course</li>
+      <li onClick={() => onMenuSelect('manage')}>Manage Department & Course</li>
     </ul>
-    <h3>Manage Course Materials</h3>
+    <h3>Upload & Resources</h3>
     <ul>
-      <li onClick={() => onMenuSelect('materials')}>Edit / Replace Files</li>
-      <li onClick={() => onMenuSelect('resources')}>Add Resources</li>
-    </ul>
-    <h3>Course Settings</h3>
-    <ul>
-      <li onClick={() => onMenuSelect('settings')}>Course Title & Info</li>
-      <li onClick={() => onMenuSelect('completion')}>Completion Rules</li>
+      <li onClick={() => onMenuSelect('upload')}>Upload Training Content</li>
     </ul>
   </>
 );
 
+
+// Sidebar: Assessments
 const AssessmentsSidebar = ({ onMenuSelect }) => (
   <>
     <h3>Assessments</h3>
     <ul>
       <li onClick={() => onMenuSelect('create')}>Create Assessment</li>
-      <li onClick={() => onMenuSelect('assign')}>Assign to Course</li>
-      <li onClick={() => onMenuSelect('manage')}>Manage Questions</li>
+      <li onClick={() => onMenuSelect('manage')}>Manage Assessments</li>
     </ul>
   </>
 );
 
+// Sidebar: Employees (merged Manage/Edit)
 const EmployeesSidebar = ({ onMenuSelect }) => (
   <>
     <h3>Employees</h3>
     <ul>
       <li onClick={() => onMenuSelect('add')}>Add Employee</li>
-      <li onClick={() => onMenuSelect('manage')}>Manage Employees</li>
-      <li onClick={() => onMenuSelect('edit')}>Edit Info</li>
+      <li onClick={() => onMenuSelect('manage')}>Manage & Edit Employees</li>
     </ul>
   </>
 );
@@ -51,10 +47,10 @@ const AdminLayout = ({ children, onMenuSelect }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Optionally clear session/auth logic here
     navigate('/');
   };
 
+  // Sidebar logic by current route
   let sidebar = null;
   if (location.pathname.startsWith('/admin/courses')) {
     sidebar = <CoursesSidebar onMenuSelect={onMenuSelect} />;
@@ -70,7 +66,6 @@ const AdminLayout = ({ children, onMenuSelect }) => {
         <div className="admin-navbar-left">
           <div className="logo">GearUp Admin</div>
         </div>
-
         <div className="admin-navbar-right">
           <nav className="admin-nav">
             <Link to="/admin/courses">Courses</Link>

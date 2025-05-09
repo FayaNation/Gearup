@@ -1,6 +1,7 @@
 import React from "react";
 import AdminLayout from "./AdminLayout";
 import { FaCertificate } from "react-icons/fa";
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import "./AdminReports.css";
 
 const data = [
@@ -24,6 +25,19 @@ const data = [
   },
 ];
 
+const COLORS = ["#00C49F", "#FFBB28"];
+
+const chartData = [
+  {
+    name: "Completed",
+    value: data.filter((d) => d.status === "Completed").length,
+  },
+  {
+    name: "In Progress",
+    value: data.filter((d) => d.status === "In Progress").length,
+  },
+];
+
 const AdminReports = () => {
   const handleGenerate = (name) => {
     alert(`Certificate generated for ${name}`);
@@ -32,7 +46,7 @@ const AdminReports = () => {
   return (
     <AdminLayout>
       <div className="reports-container">
-        <h2>Certifications & Reports</h2>
+        <h2>Certifications</h2>
         <table className="report-table">
           <thead>
             <tr>
@@ -51,7 +65,10 @@ const AdminReports = () => {
                       <img src={emp.image} className="avatar" alt={emp.name} />
                     ) : (
                       <div className="avatar initials">
-                        {emp.name.split(" ").map(n => n[0]).join("")}
+                        {emp.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </div>
                     )}
                     {emp.name}
@@ -87,6 +104,28 @@ const AdminReports = () => {
             ))}
           </tbody>
         </table>
+
+        <div className="report-summary">
+          <h3>Reports</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </AdminLayout>
   );

@@ -6,22 +6,20 @@ const AdminEmployees = () => {
   const [activeTab, setActiveTab] = useState('add');
 
   const [employees, setEmployees] = useState([
-    { id: 1, name: 'Alex Morgan', email: 'alex@gearup.com', department: 'Mechanical' },
-    { id: 2, name: 'Jamie Lee', email: 'jamie@gearup.com', department: 'Electrical' },
+    { id: 1, name: 'Alex Morgan', email: 'alex@gearup.com', department: 'Mechanical', password: '' },
+    { id: 2, name: 'Jamie Lee', email: 'jamie@gearup.com', department: 'Electrical', password: '' },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortAsc, setSortAsc] = useState(true);
 
-  const [newEmp, setNewEmp] = useState({ name: '', email: '', department: '' });
-  const [editId, setEditId] = useState('');
-  const [editInfo, setEditInfo] = useState({ name: '', email: '', department: '' });
+  const [newEmp, setNewEmp] = useState({ name: '', email: '', department: '', password: '' });
 
   const handleAddEmployee = () => {
-    if (newEmp.name && newEmp.email && newEmp.department) {
+    if (newEmp.name && newEmp.email && newEmp.department && newEmp.password) {
       const id = Date.now();
       setEmployees([...employees, { id, ...newEmp }]);
-      setNewEmp({ name: '', email: '', department: '' });
+      setNewEmp({ name: '', email: '', department: '', password: '' });
     } else {
       alert('Please fill in all fields.');
     }
@@ -49,21 +47,16 @@ const AdminEmployees = () => {
     );
   });
 
-  const handleEditSelection = (id) => {
-    const selected = employees.find((e) => e.id === parseInt(id));
-    setEditId(id);
-    setEditInfo({ name: selected.name, email: selected.email, department: selected.department });
-  };
-
-  const handleSaveEdit = () => {
+  const handleEditChange = (id, field, value) => {
     setEmployees(
       employees.map((emp) =>
-        emp.id === parseInt(editId) ? { ...emp, ...editInfo } : emp
+        emp.id === id ? { ...emp, [field]: value } : emp
       )
     );
-    alert('Employee info updated ✅');
-    setEditId('');
-    setEditInfo({ name: '', email: '', department: '' });
+  };
+
+  const handleSaveAllChanges = () => {
+    alert('All changes saved successfully ✅');
   };
 
   const renderTabContent = () => {
@@ -89,6 +82,12 @@ const AdminEmployees = () => {
             value={newEmp.department}
             onChange={(e) => setNewEmp({ ...newEmp, department: e.target.value })}
           />
+          <input
+            type="password"
+            placeholder="Password"
+            value={newEmp.password}
+            onChange={(e) => setNewEmp({ ...newEmp, password: e.target.value })}
+          />
           <button onClick={handleAddEmployee}>Add Employee</button>
         </div>
       );
@@ -97,7 +96,7 @@ const AdminEmployees = () => {
     if (activeTab === 'manage') {
       return (
         <div className="manage-employees">
-          <h2>Manage Employees</h2>
+          <h2>Manage & Edit Employees</h2>
 
           <div className="search-bar">
             <input
@@ -117,15 +116,41 @@ const AdminEmployees = () => {
                 <th onClick={handleSort} className="sortable">
                   Department {sortAsc ? '↑' : '↓'}
                 </th>
+                <th>Password</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
-                  <td>{emp.name}</td>
-                  <td>{emp.email}</td>
-                  <td>{emp.department}</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={emp.name}
+                      onChange={(e) => handleEditChange(emp.id, 'name', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="email"
+                      value={emp.email}
+                      onChange={(e) => handleEditChange(emp.id, 'email', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={emp.department}
+                      onChange={(e) => handleEditChange(emp.id, 'department', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="password"
+                      value={emp.password || ''}
+                      onChange={(e) => handleEditChange(emp.id, 'password', e.target.value)}
+                    />
+                  </td>
                   <td>
                     <button onClick={() => handleDelete(emp.id)}>Delete</button>
                   </td>
@@ -133,47 +158,12 @@ const AdminEmployees = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      );
-    }
 
-    if (activeTab === 'edit') {
-      return (
-        <div className="edit-employee">
-          <h2>Edit Employee Info</h2>
-
-          <select value={editId} onChange={(e) => handleEditSelection(e.target.value)}>
-            <option value="">Select an employee</option>
-            {employees.map((emp) => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name} ({emp.department})
-              </option>
-            ))}
-          </select>
-
-          {editId && (
-            <div className="edit-form">
-              <input
-                type="text"
-                value={editInfo.name}
-                onChange={(e) => setEditInfo({ ...editInfo, name: e.target.value })}
-                placeholder="Name"
-              />
-              <input
-                type="email"
-                value={editInfo.email}
-                onChange={(e) => setEditInfo({ ...editInfo, email: e.target.value })}
-                placeholder="Email"
-              />
-              <input
-                type="text"
-                value={editInfo.department}
-                onChange={(e) => setEditInfo({ ...editInfo, department: e.target.value })}
-                placeholder="Department"
-              />
-              <button onClick={handleSaveEdit}>Save Changes</button>
-            </div>
-          )}
+          <div style={{ marginTop: '1.5rem' }}>
+            <button className="save-btn" onClick={handleSaveAllChanges}>
+              Save Changes
+            </button>
+          </div>
         </div>
       );
     }

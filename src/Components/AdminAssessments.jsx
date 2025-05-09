@@ -5,8 +5,8 @@ import './AdminAssessments.css';
 const AdminAssessments = () => {
   const [activeTab, setActiveTab] = useState('create');
 
-  // Create tab state
   const [assessmentTitle, setAssessmentTitle] = useState('');
+  const [assignedCourse, setAssignedCourse] = useState('');
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState({
     prompt: '',
@@ -14,26 +14,15 @@ const AdminAssessments = () => {
     correctAnswer: '',
   });
 
-  // Create tab - Settings inputs
-  const [passScore, setPassScore] = useState('');
-  const [timeLimit, setTimeLimit] = useState('');
-  const [shuffle, setShuffle] = useState(false);
-  const [allowRetry, setAllowRetry] = useState(false);
+  const [assessments, setAssessments] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
 
-  // Assign tab state
-  const [assignAssessment, setAssignAssessment] = useState('');
-  const [assignCourse, setAssignCourse] = useState('');
-
-  // Dummy data for courses
   const courseList = ['Engine Basics', 'Auto Electrical', 'Diagnostics'];
 
-  // Saved assessments
-  const assessmentList = questions.length > 0 ? [assessmentTitle] : [];
-
   const handleOptionChange = (index, value) => {
-    const updatedOptions = [...newQuestion.options];
-    updatedOptions[index] = value;
-    setNewQuestion({ ...newQuestion, options: updatedOptions });
+    const updated = [...newQuestion.options];
+    updated[index] = value;
+    setNewQuestion({ ...newQuestion, options: updated });
   };
 
   const handleAddQuestion = () => {
@@ -43,64 +32,59 @@ const AdminAssessments = () => {
       newQuestion.correctAnswer
     ) {
       setQuestions([...questions, newQuestion]);
-      setNewQuestion({
-        prompt: '',
-        options: ['', '', '', ''],
-        correctAnswer: '',
-      });
+      setNewQuestion({ prompt: '', options: ['', '', '', ''], correctAnswer: '' });
     } else {
-      alert('Please complete all fields before adding the question.');
+      alert('Complete all fields before adding the question.');
     }
   };
 
   const handleSaveAssessment = () => {
-    if (!assessmentTitle || questions.length === 0) {
-      alert('Assessment title and at least one question are required.');
+    if (!assessmentTitle || questions.length === 0 || !assignedCourse) {
+      alert('Title, course, and questions are required.');
       return;
     }
 
-    console.log('Assessment Saved:', {
+    const newAssessment = {
       title: assessmentTitle,
+      course: assignedCourse,
       questions,
-      settings: {
-        passScore,
-        timeLimit,
-        shuffle,
-        allowRetry,
-      },
-    });
+    };
 
-    alert(`Assessment saved ✅\nPass Score: ${passScore}%\nTime Limit: ${timeLimit} min\nShuffle: ${shuffle ? 'Yes' : 'No'}\nRetry: ${allowRetry ? 'Yes' : 'No'}`);
-
-    setAssessmentTitle('');
-    setQuestions([]);
-    setPassScore('');
-    setTimeLimit('');
-    setShuffle(false);
-    setAllowRetry(false);
-  };
-
-  const handleAssign = () => {
-    if (assignAssessment && assignCourse) {
-      alert(`✅ "${assignAssessment}" has been assigned to "${assignCourse}"`);
-      setAssignAssessment('');
-      setAssignCourse('');
+    if (editingIndex !== null) {
+      const updated = [...assessments];
+      updated[editingIndex] = newAssessment;
+      setAssessments(updated);
+      setEditingIndex(null);
     } else {
-      alert('Please select both an assessment and a course.');
+      setAssessments([...assessments, newAssessment]);
     }
+
+    alert('Assessment saved ✅');
+    setAssessmentTitle('');
+    setAssignedCourse('');
+    setQuestions([]);
   };
 
-  const handleDeleteAssessment = () => {
-    setAssessmentTitle('');
-    setQuestions([]);
-    alert('Assessment deleted 🗑️');
+  const handleEdit = (index) => {
+    const a = assessments[index];
+    setAssessmentTitle(a.title);
+    setAssignedCourse(a.course);
+    setQuestions(a.questions);
+    setEditingIndex(index);
+    setActiveTab('create');
+  };
+
+  const handleDelete = (index) => {
+    const updated = [...assessments];
+    updated.splice(index, 1);
+    setAssessments(updated);
   };
 
   const renderTabContent = () => {
     if (activeTab === 'create') {
       return (
         <div className="create-assessment">
-          <h2>Create New Assessment</h2>
+          <h2>{editingIndex !== null ? 'Edit' : 'Create'} Assessment</h2>
 
           <input
             type="text"
@@ -109,15 +93,23 @@ const AdminAssessments = () => {
             onChange={(e) => setAssessmentTitle(e.target.value)}
           />
 
+          <select
+            value={assignedCourse}
+            onChange={(e) => setAssignedCourse(e.target.value)}
+          >
+            <option value="">Select Course</option>
+            {courseList.map((course, i) => (
+              <option key={i} value={course}>{course}</option>
+            ))}
+          </select>
+
           <div className="question-builder">
             <h4>Add a Question</h4>
             <input
               type="text"
               placeholder="Question prompt"
               value={newQuestion.prompt}
-              onChange={(e) =>
-                setNewQuestion({ ...newQuestion, prompt: e.target.value })
-              }
+              onChange={(e) => setNewQuestion({ ...newQuestion, prompt: e.target.value })}
             />
             {newQuestion.options.map((opt, idx) => (
               <input
@@ -131,10 +123,7 @@ const AdminAssessments = () => {
             <select
               value={newQuestion.correctAnswer}
               onChange={(e) =>
-                setNewQuestion({
-                  ...newQuestion,
-                  correctAnswer: e.target.value,
-                })
+                setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })
               }
             >
               <option value="">Select Correct Answer</option>
@@ -147,50 +136,9 @@ const AdminAssessments = () => {
             <button onClick={handleAddQuestion}>Add Question</button>
           </div>
 
-          <div className="assessment-settings">
-            <h4>Settings</h4>
-            <label>
-              Minimum Pass Score (%):
-              <input
-                type="number"
-                value={passScore}
-                onChange={(e) => setPassScore(e.target.value)}
-                placeholder="e.g. 70"
-              />
-            </label>
-
-            <label>
-              Time Limit (minutes):
-              <input
-                type="number"
-                value={timeLimit}
-                onChange={(e) => setTimeLimit(e.target.value)}
-                placeholder="e.g. 30"
-              />
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                checked={shuffle}
-                onChange={() => setShuffle(!shuffle)}
-              />
-              Shuffle Questions
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                checked={allowRetry}
-                onChange={() => setAllowRetry(!allowRetry)}
-              />
-              Allow Retry
-            </label>
-          </div>
-
           {questions.length > 0 && (
             <div className="preview">
-              <h4>Questions Added</h4>
+              <h4>Questions Preview</h4>
               <ul>
                 {questions.map((q, idx) => (
                   <li key={idx}>
@@ -202,43 +150,9 @@ const AdminAssessments = () => {
             </div>
           )}
 
-          <button onClick={handleSaveAssessment} className="save-btn">
-            Save Assessment
+          <button className="save-btn" onClick={handleSaveAssessment}>
+            {editingIndex !== null ? 'Update' : 'Save'} Assessment
           </button>
-        </div>
-      );
-    }
-
-    if (activeTab === 'assign') {
-      return (
-        <div className="assign-panel">
-          <h2>Assign Assessment to Course</h2>
-
-          <select
-            value={assignAssessment}
-            onChange={(e) => setAssignAssessment(e.target.value)}
-          >
-            <option value="">Select Assessment</option>
-            {assessmentList.map((a, i) => (
-              <option key={i} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={assignCourse}
-            onChange={(e) => setAssignCourse(e.target.value)}
-          >
-            <option value="">Select Course</option>
-            {courseList.map((c, i) => (
-              <option key={i} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-
-          <button onClick={handleAssign}>Assign</button>
         </div>
       );
     }
@@ -247,26 +161,20 @@ const AdminAssessments = () => {
       return (
         <div className="manage-panel">
           <h2>Manage Assessments</h2>
-
-          {assessmentTitle && questions.length > 0 ? (
-            <div className="assessment-card">
-              <h4>{assessmentTitle}</h4>
-              <p>Questions: {questions.length}</p>
-              <button
-                onClick={() =>
-                  alert(
-                    questions
-                      .map((q, idx) => `Q${idx + 1}: ${q.prompt}`)
-                      .join('\n\n')
-                  )
-                }
-              >
-                View Questions
-              </button>
-              <button onClick={handleDeleteAssessment}>Delete</button>
-            </div>
+          {assessments.length > 0 ? (
+            assessments.map((a, index) => (
+              <div key={index} className="assessment-card">
+                <h4>{a.title}</h4>
+                <p>Course: {a.course}</p>
+                <p>Questions: {a.questions.length}</p>
+                <div className="manage-actions">
+                  <button onClick={() => handleEdit(index)}>Edit</button>
+                  <button onClick={() => handleDelete(index)}>Delete</button>
+                </div>
+              </div>
+            ))
           ) : (
-            <p>No assessments created yet.</p>
+            <p>No assessments available.</p>
           )}
         </div>
       );
